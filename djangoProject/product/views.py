@@ -19,13 +19,46 @@ import imageio
 from PIL import Image
 import shutil
 
-## camera
-class ProductListAPI(APIView):
-    def get(self, request):
-        queryset = Product.objects.all()
-        print(queryset)
-        serializer = ProductSerializer(queryset, many=True)
-        return Response(serializer.data)
+
+#aws s3
+import boto3
+from botocore.client import Config
+#aws iot
+
+from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
+import logging
+import time
+import argparse
+import json
+
+# Connect and subscribe to AWS IoT
+# myAWSIoTMQTTClient.connect()
+# if args.mode == 'both' or args.mode == 'subscribe':
+#     myAWSIoTMQTTClient.subscribe(topic, 1, customCallback)
+# time.sleep(2)
+
+loopCount = 0
+
+
+
+
+@api_view(['GET'])
+def test(request, email):
+    
+    # os.system('python3 aws-iot-device-sdk-python-v2/samples/pubsub.py --topic hyuk-pi/a --ca_file ~/certs/AmazonRootCA1.pem --cert ~/certs/fd18991a37a08f66597744d7e45ad95ace2e193d0d63bd5c09f5231192b481b1-certificate.pem.crt --key ~/certs/fd18991a37a08f66597744d7e45ad95ace2e193d0d63bd5c09f5231192b481b1-private.pem.key --endpoint a12ugbifljut5v-ats.iot.ap-northeast-2.amazonaws.com --message awd')
+    return render(request,'a.html',{'email':email})
+
+
+@api_view(['GET'])
+def test3(request,email):
+    
+    os.system('python3 aws-iot-device-sdk-python-v2/samples/pubsub.py --topic hyuk-pi/a --ca_file ~/certs/AmazonRootCA1.pem --cert ~/certs/fd18991a37a08f66597744d7e45ad95ace2e193d0d63bd5c09f5231192b481b1-certificate.pem.crt --key ~/certs/fd18991a37a08f66597744d7e45ad95ace2e193d0d63bd5c09f5231192b481b1-private.pem.key --endpoint a12ugbifljut5v-ats.iot.ap-northeast-2.amazonaws.com --message '+email)
+
+    return redirect('../')
+
+
+
+
 
 @api_view(['POST'])
 def upload_file(request):
@@ -44,49 +77,43 @@ def upload_file(request):
     
     except:
         asd=1
-@api_view(['GET'])
-def test(request, email):
-    try:
-        if not os.path.exists('./static/'+email):
-            os.makedirs('./static/'+email)
-    except OSError:
-        print ('Error: Creating directory. ' )
-    return render(request,'a.html',{'email':email})
+
 @api_view(['GET'])
 def test2(request,email):
+    email=email[:-10]
+    def s3_connection():
+        try:
+            s3 = boto3.client(
+                service_name="s3",
+                region_name="ap-northeast-2", # 자신이 설정한 bucket region
+                aws_access_key_id='AKIA4GGDU36NPNTUB7WU',
+                aws_secret_access_key='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',
+            )
+        except Exception as e:
+            print(e)
+        else:
+            print("s3 bucket connected!")
+            return s3
+    s3 = s3_connection()
+    nums=[]
+    response = s3.list_objects(Bucket='hyuksoonism-bucket', Prefix=email)
+    print(response)
+    print(response['Contents'])
+    for re in response['Contents']:
+            nums.append(re['Key'][len(email)+1:-4])
+    
+    location = s3.get_bucket_location(Bucket="hyuksoonism-bucket")["LocationConstraint"]
     photos=[]
-    cnt=0
-    for i in range(4):
-            if os.path.exists('./static/'+email+'/'+str(i)):
-                cnt+=1
-    for j in range(cnt):
-        photos.append('/static/'+email+'/'+str(j)+'/'+'main.gif')
+    if int(nums[-1])>=4:
+        for i in range(int(nums[-1])-3,int(nums[-1])+1):
+            photos.append("https://hyuksoonism-bucket.s3."+location+".amazonaws.com/"+email+'/'+str(i)+".gif")
+    else:
+
+        for i in range(1,int(nums[-1])+1):
+            photos.append("https://hyuksoonism-bucket.s3."+location+".amazonaws.com/"+email+'/'+str(i)+".gif")   
+
     print(photos)
 
     return render(request,'b.html',{'photos':photos})
 
 
-def test3(request,email):
-    
-    cnt=0
-    for i in range(4):
-        if os.path.exists('./static/'+email+'/'+str(i)):
-            cnt+=1
-    if cnt==4:
-        shutil.rmtree('./static/'+email+'/'+str(0))
-        for i in range(1,4):
-            os.rename('./static/'+email+'/'+str(i),'./static/'+email+'/'+str(i-1))
-        idx=3
-    else:
-        idx=cnt
-    os.makedirs('./static/'+email+'/'+str(idx))
-
-    for i in range(10):
-        camera=picamera.PiCamera()
-        camera.resolution=(1024,768)
-        camera.capture('./static/'+email+'/'+str(idx)+'/'+str(i)+'.jpg')
-        camera.close()
-    path = ['./static/'+email+'/'+str(idx)+'/'+str(i) for i in os.listdir('./static/'+email+'/'+str(idx))]
-    imgs = [ Image.open(i) for i in path]
-    imageio.mimsave('./static/'+email+'/'+str(idx)+'/'+'main.gif', imgs, fps=2.0)
-    return redirect('../')
