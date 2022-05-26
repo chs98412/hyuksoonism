@@ -1,4 +1,4 @@
-arandr==0.1.10
+
 asgiref==3.5.1
 astroid==2.5.1
 asttokens==2.0.4
@@ -20,7 +20,7 @@ colorama==0.4.4
 colorzero==1.1
 configobj==5.0.6
 cryptography==3.3.2
-cupshelpers==1.0
+
 dbus-python==1.2.16
 distro==1.5.0
 Django==4.0.4
@@ -40,7 +40,7 @@ itsdangerous==1.1.0
 jedi==0.18.0
 Jinja2==2.11.3
 jmespath==1.0.0
-lazy-object-proxy==0.0.0
+
 logilab-common==1.8.1
 lxml==4.6.3
 MarkupSafe==1.1.1
