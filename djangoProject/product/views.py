@@ -52,7 +52,7 @@ def test(request, email):
 @api_view(['GET'])
 def test3(request,email):
     
-    os.system('python3 pubsub.py --topic hyuk-pi/a --ca_file AmazonRootCA1.pem --cert fd18991a37a08f66597744d7e45ad95ace2e193d0d63bd5c09f5231192b481b1-certificate.pem.crt --key fd18991a37a08f66597744d7e45ad95ace2e193d0d63bd5c09f5231192b481b1-private.pem.key --endpoint a12ugbifljut5v-ats.iot.ap-northeast-2.amazonaws.com --message '+email)
+    os.system('python3 /aws-iot-device-sdk-python-v2/samples/pubsub.py --topic hyuk-pi/a --ca_file AmazonRootCA1.pem --cert fd18991a37a08f66597744d7e45ad95ace2e193d0d63bd5c09f5231192b481b1-certificate.pem.crt --key fd18991a37a08f66597744d7e45ad95ace2e193d0d63bd5c09f5231192b481b1-private.pem.key --endpoint a12ugbifljut5v-ats.iot.ap-northeast-2.amazonaws.com --message '+email)
 
     return redirect('../')
 
