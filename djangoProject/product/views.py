@@ -10,14 +10,14 @@ import os
 from pickle import load
 from django.urls import reverse
 
-##camera
-import picamera
-import time
-import requests
-import smtplib
-import imageio
-from PIL import Image
-import shutil
+# ##camera
+# import picamera
+# import time
+# import requests
+# import smtplib
+# import imageio
+# from PIL import Image
+# import shutil
 
 
 #aws s3
